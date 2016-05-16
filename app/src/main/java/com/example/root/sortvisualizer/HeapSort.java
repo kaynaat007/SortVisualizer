@@ -11,16 +11,14 @@ import java.util.Random;
  */
 public class HeapSort  {
 
-    List<Integer> input;
+    List<HeapSortModel> input;
     int heap_capacity;
     int heap_size;
 
-    public HeapSort(List<Integer> input){
+    public HeapSort(List<HeapSortModel> input){
         this.input = input;
         this.heap_capacity = input.size() - 1 ;
         this.heap_size = input.size() - 1 ;
-        System.out.println("capacity : " + heap_capacity);
-        System.out.println("heap size: " + heap_size );
         build_heap();
         print();
     }
@@ -29,7 +27,7 @@ public class HeapSort  {
         return index/2;
     }
     int left_child(int index) {
-        int l = 2 * index;
+        int l = 2 * index + 1;
         if ( l <= heap_size ) {
             return l;
         }
@@ -39,7 +37,7 @@ public class HeapSort  {
 
     }
     int right_child( int index) {
-        int r =  2 * index + 1;
+        int r =  2 * index + 2;
         if ( r <= heap_size) {
             return r;
         }
@@ -59,7 +57,7 @@ public class HeapSort  {
         }
 
         if ( left == -1 ) {
-            if ( input.get(right) < input.get(root) )  {
+            if ( input.get(right).getmNumber() < input.get(root).getmNumber() )  {
                 return right;
             }
             else {
@@ -69,7 +67,7 @@ public class HeapSort  {
 
         if ( right == -1 ) {
 
-            if ( input.get( left ) < input.get( root )) {
+            if ( input.get( left ).getmNumber() < input.get( root ).getmNumber()) {
                 return left;
             }
             else {
@@ -78,13 +76,13 @@ public class HeapSort  {
         }
 
 
-        if ( input.get( left) < input.get( right ) ) {
+        if ( input.get( left).getmNumber() < input.get( right ).getmNumber() ) {
             min_index = left;
         }
         else {
             min_index = right;
         }
-        if ( input.get( min_index) < input.get( root)) {
+        if ( input.get( min_index).getmNumber() < input.get( root).getmNumber()) {
             return min_index;
         }
         else{
@@ -94,7 +92,7 @@ public class HeapSort  {
 
     void swap( int first, int second) {
 
-        int temp = input.get(first);
+        HeapSortModel temp = input.get(first);
         input.set(first, input.get(second));
         input.set(second, temp);
     }
@@ -118,10 +116,11 @@ public class HeapSort  {
     }
 
     void build_heap( ){
-        int n = heap_size;
-        for ( int i = n/2; i >= 1; i--) {
+        int n = heap_size + 1;
+        int k = n/2 - 1;
+        for ( ; k >= 0; k--) {
            // System.out.println("i=" + i);
-            heapify(i);
+            heapify(k);
         }
 
     }
@@ -131,23 +130,23 @@ public class HeapSort  {
         int v;
         System.out.println (" printing .....\n");
         System.out.println ( "heap size : " + heap_size) ;
-        for ( i = 1; i <= heap_size; i++ ) {
-            v = input.get(i);
+        for ( i = 0; i <= heap_size; i++ ) {
+            v = input.get(i).getmNumber();
             System.out.print(v + " ");
         }
 
     }
 
-    int  extract_min() {
-        if ( heap_size >= 1 ) {
-            int min = input.get(1);
-            swap(1, heap_size);
+    HeapSortModel  extract_min() {
+        if ( heap_size >= 0 ) {
+            HeapSortModel min = input.get(0);
+            swap(0, heap_size);
             heap_size--;
-            heapify(1);
+            heapify(0);
             return min;
         }
         else {
-            return -1;
+            return null;
         }
     }
 

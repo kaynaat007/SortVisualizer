@@ -36,6 +36,7 @@ public class HeapSortListAdapter extends RecyclerView.Adapter<HeapSortHolder> {
     @Override
     public void onBindViewHolder(HeapSortHolder holder, int position) {
         holder.mNumberView.setText(mList.get(position).getmNumber() + "");
+
         if(mList.get(position).getColor()==0) {
             holder.mNumberView.setTextColor(mContext.getResources().getColor(R.color.black));
             holder.mSubText.setVisibility(View.GONE);
@@ -46,7 +47,7 @@ public class HeapSortListAdapter extends RecyclerView.Adapter<HeapSortHolder> {
             holder.mNumberView.setTypeface(null, Typeface.NORMAL);
         } else if(mList.get(position).getColor()==2) {
             holder.mNumberView.setTextColor(mContext.getResources().getColor(R.color.green));
-            holder.mSubText.setVisibility(View.GONE);
+            holder.mSubText.setVisibility(View.VISIBLE);
             holder.mNumberView.setTypeface(null, Typeface.BOLD_ITALIC);
         }
     }

@@ -12,6 +12,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 
 import com.example.root.sortvisualizer.adapters.HeapSortListAdapter;
@@ -30,23 +31,26 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
 
-public class HeapSortActivity extends AppCompatActivity {
+public class HeapSortActivity extends AppCompatActivity implements Sorter{
     /*
 
-     This Activity handles HeapSort
+     This Activity handles HeapSort and displays progress to UI
      RV ---> RecyclerView
 
      */
-
+    List<HeapSortModel> mNumbersList = new ArrayList<>(11); // a list of data type 'HeapSortModel' which is a data structure to store element and it's color.
+    List<HeapSortModel>data = new ArrayList<>();
     RecyclerView mNumberListView;  // using recycler view to display elements
     private LinearLayoutManager mLinearLayoutManger; // layout manager for RV
     private HeapSortListAdapter mHeapSortAdapter; // Adaptor class for RV
-    private List<HeapSortModel> mNumbersList = new ArrayList<>(11); // a list of data type 'HeapSortModel' whic is a data structure to store element and it's color.
+    List<HeapSortModel> heap_array = new ArrayList<HeapSortModel>();
+    HeapSort heap;
+    private TextView mListTextView; // Text View to display unsorted array at the top of the screen
     int min_index;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +58,6 @@ public class HeapSortActivity extends AppCompatActivity {
         setContentView(R.layout.activity_visualizer);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,45 +72,67 @@ public class HeapSortActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent in = getIntent();
         String size = in.getStringExtra("Size"); // get the size of List from main activity
-        final int max = 100; // numbers max limit
-        final int min = 1; // numbers min limit
-        final Random rn = new Random(); // we will deal with random numbers
+
         mNumbersList.clear(); // clear the list before proceeding
 
-        for( int  i = 1; i <= Integer.parseInt(size); i++ ) {
-            mNumbersList.add(new HeapSortModel(rn.nextInt(max - min + 1) + min,0)); // populate the List with instances of heapSortModel , color of each element is balck(0) initially.
+        populate_list(size); // populate the list with random numbers from max to min
+
+        mListTextView = (TextView) findViewById(R.id.unsorted_list);
+        display_numbers();
+
+        for ( int i = 0; i < mNumbersList.size(); i++ ) {
+            HeapSortModel h = new HeapSortModel(0,0);
+            data.add(h);
         }
+
         mNumberListView = (RecyclerView) findViewById(R.id.numbers_list_view); // find RecyclerView
         mLinearLayoutManger = new LinearLayoutManager(this); // get LinearLayout
         mLinearLayoutManger.setOrientation(LinearLayoutManager.VERTICAL); // set orientation
         mNumberListView.setLayoutManager(mLinearLayoutManger); // Tell the RecyclerView about Linear Layout manager
-        mHeapSortAdapter = new HeapSortListAdapter(mNumbersList,this); // get The adaptor
+        mHeapSortAdapter = new HeapSortListAdapter(data,this); // get The adaptor
         mNumberListView.setAdapter(mHeapSortAdapter); // set RV  view with the adaptor
 
+        run_algorithm(); // run heap sort algorithm
+
     }
 
-    void swap(int first, int second) {
-        /*
-         Function to swap elements at index first, second
-         */
-        HeapSortModel temp = mNumbersList.get(first);
-        mNumbersList.set(first, mNumbersList.get(second));
-        mNumbersList.set(second, temp);
-    }
+    @Override
+    public void display_numbers() {
 
-    private int  get_min( int start ) {
-
-        int i;
-        int min = 1000000;
-        int index = -1;
-        for ( i = start; i < mNumbersList.size(); i++ ) {
-            if ( mNumbersList.get(i).getmNumber() < min ) {
-                min = mNumbersList.get(i).getmNumber();
-                index = i;
+        StringBuilder sb = new StringBuilder(); // String builder to display the  elements at the top of the screen
+        for(int i = 0; i< mNumbersList.size();i++) {
+            if(i==mNumbersList.size()-1) {
+                sb.append(mNumbersList.get(i).getmNumber()+"");
+            } else {
+                sb.append(mNumbersList.get(i).getmNumber() + ", ");
             }
         }
-        return index;
+        mListTextView.setText(sb); // display the unsorted numbers at the top of screen .
     }
+
+    @Override
+    public void populate_list( String size) {
+        Log.d("DEBUG", "populating list..");
+        final Random rn = new Random(); // we will deal with random numbers
+        final int max = 100; // numbers max limit
+        final int min = 1; // numbers min limit
+
+        for( int  i = 0; i < Integer.parseInt(size); i++ ) {
+            mNumbersList.add(new HeapSortModel(rn.nextInt(max - min + 1) + min,0)); // populate the List with instances of heapSortModel , color of each element is balck(0) initially.
+        }
+    }
+
+    @Override
+    public void run_algorithm() {
+        Log.d("run_algorithm()", "in run_algorithm");
+        heap_array.clear();
+        for ( int i = 0; i < mNumbersList.size(); i++) {
+            HeapSortModel h = new HeapSortModel(mNumbersList.get(i).getmNumber(), i);
+            heap_array.add(h);
+        }
+        heap = new HeapSort(heap_array);
+    }
+
 
     private class AsyncTaskRunner extends AsyncTask<String, String, String> {
         /*
@@ -122,31 +147,20 @@ public class HeapSortActivity extends AppCompatActivity {
             try {
                 // Do your long operations here and return the result
                 // Sleeping for given time period
-                for (int i = 1; i < mNumbersList.size(); i++) {
+                for (int i = 0; i < mNumbersList.size(); i++) {
 //            i = 1;'
                     //do your stuff here after DELAY sec
 
-                    min_index = get_min(i); // find the minimum element index in list ( i....size)
-                    mHeapSortAdapter.getmList().set(i, new HeapSortModel(mNumbersList.get(i).getmNumber(), 1)); // color the ith element red
+                    //min_index = get_min(i); // find the minimum element index in list (i....size)
+                    Log.d("DEBUG", "extracting min...");
+                    HeapSortModel m = heap.extract_min();
+                    min_index = m.getColor();
+                    HeapSortModel h = new HeapSortModel( mNumbersList.get(min_index).getmNumber(), 2);
+                    System.out.println("MIN: " + m.getmNumber());
+                    mHeapSortAdapter.getmList().set(i, h);
                     index = i;
                     publishProgress(); // display to UI
                     Thread.sleep(500); // sleep
-                    mHeapSortAdapter.getmList().set(min_index, new HeapSortModel(mNumbersList.get(min_index).getmNumber(), 1)); // color the min_index element red
-                    index = min_index;
-
-                    publishProgress(); // display to UI
-                    Thread.sleep(1000);
-                    swap(min_index,i); // swap both elements
-
-                    mHeapSortAdapter.getmList().set(min_index, new HeapSortModel(mNumbersList.get(min_index).getmNumber(),0 )); // color the element at min_index black again
-                    index = min_index;
-                    publishProgress(); // display to UI
-                    Thread.sleep(500);
-                    mHeapSortAdapter.getmList().set(i, new HeapSortModel(mNumbersList.get(i).getmNumber(), 2)); // color the element at index i Green to mark it as sorted
-                    index = i;
-                    publishProgress(); // display to UI
-                    publishProgress();
-                    Thread.sleep(2000);
                     resp = "Slept for 2000 milliseconds";
                 }
             } catch (InterruptedException e) {

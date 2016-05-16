@@ -23,7 +23,7 @@ import java.util.Random;
 
 public class BucketSortActivity extends AppCompatActivity {
     /*
-     This class is responsible for handling bucket sort logic
+     This class is responsible for handling bucket sort logic and displaying  progress to UI
      */
 
     private List<BucketSortModel> mBucketList = new ArrayList<>(); // a list, in which each element is instance of BucketSortModel class

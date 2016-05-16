@@ -9,6 +9,9 @@ public class HeapSortModel {
      */
     int mNumber,color;
 
+    public HeapSortModel(){
+
+    }
     public HeapSortModel(int mNumber,int color) {
         this.color = color;
         this.mNumber = mNumber;
