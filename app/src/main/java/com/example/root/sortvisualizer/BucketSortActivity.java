@@ -82,8 +82,10 @@ public class BucketSortActivity extends AppCompatActivity {
         mListTextView.setText(sb); // display the unsorted numbers at the top of screen .
         BucketSortModel bucketModel; // instance of BucketSortModel
         List<Integer> list1; // List instance
+        mListTextView.setText(sb);
+
+        // populating the Bucket array with empty buckets
         for(int i=0; i< mNumbersList.size();i++) {
-            // populating the Bucket array with empty buckets
             bucketModel = new BucketSortModel();
             list1 = new ArrayList<>();
             bucketModel.setMbucketList(list1);
