@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -21,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class BucketSortActivity extends AppCompatActivity {
+public class BucketSortActivity extends AppCompatActivity implements Sorter {
     /*
      This class is responsible for handling bucket sort logic and displaying  progress to UI
      */
@@ -61,30 +62,17 @@ public class BucketSortActivity extends AppCompatActivity {
 
         Intent in = getIntent();
         String size = in.getStringExtra("Size"); // get the size of main activity
-        final int max = 100; // max range
-        final int min = 1; //  min range
-        final Random rn = new Random(); // random numbers
+
         mNumbersList.clear();
 
-        for( int  i = 1; i <= Integer.parseInt(size); i++ ) {
-            mNumbersList.add(rn.nextInt(max - min + 1) + min); // populate the list of integers with random number
-        }
+        populate_list(size);
+        display_numbers();
 
-        StringBuilder sb = new StringBuilder(); // String builder to display the  elements at the top of the screen
-        for(int i = 0; i<mNumbersList.size();i++) {
-            if(i==mNumbersList.size()-1) {
-                sb.append(mNumbersList.get(i)+"");
-            } else {
-                sb.append(mNumbersList.get(i) + ", ");
-            }
-        }
-
-        mListTextView.setText(sb); // display the unsorted numbers at the top of screen .
         BucketSortModel bucketModel; // instance of BucketSortModel
         List<Integer> list1; // List instance
-        mListTextView.setText(sb);
 
         // populating the Bucket array with empty buckets
+        Log.d("DEBUG", "number of buckets :  " + mNumbersList.size());
         for(int i=0; i< mNumbersList.size();i++) {
             bucketModel = new BucketSortModel();
             list1 = new ArrayList<>();
@@ -101,6 +89,40 @@ public class BucketSortActivity extends AppCompatActivity {
         mNumberListView.setAdapter(mBucketSortAdapter); // set the adaptor for RV
 
     }
+
+
+    @Override
+    public void display_numbers() {
+
+        StringBuilder sb = new StringBuilder(); // String builder to display the  elements at the top of the screen
+        for(int i = 0; i< mNumbersList.size();i++) {
+            if(i==mNumbersList.size()-1) {
+                sb.append(mNumbersList.get(i)+"");
+            } else {
+                sb.append(mNumbersList.get(i)+ ", ");
+            }
+        }
+        mListTextView.setText(sb); // display the unsorted numbers at the top of screen .
+    }
+
+    @Override
+    public void populate_list( String size) {
+        Log.d("DEBUG", "populating list..");
+        final Random rn = new Random(); // we will deal with random numbers
+        final int max = 100; // numbers max limit
+        final int min = 1; // numbers min limit
+
+        for( int  i = 0; i < Integer.parseInt(size); i++ ) {
+            mNumbersList.add(rn.nextInt(max - min + 1) + min); // populate the List with instances of heapSortModel , color of each element is balck(0) initially.
+        }
+    }
+
+
+    @Override
+    public void run_algorithm() {
+        Log.d("run_algorithm()", "in run_algorithm");
+    }
+
 
     private class AsyncTaskRunner extends AsyncTask<String, String, String> {
 

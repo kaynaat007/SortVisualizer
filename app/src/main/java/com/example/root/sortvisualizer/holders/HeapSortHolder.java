@@ -22,7 +22,6 @@ public class HeapSortHolder extends RecyclerView.ViewHolder {
     public HeapSortHolder(View itemView) {
         super(itemView);
         ButterKnife.bind(this,itemView);
-
     }
 
 }
